@@ -15,8 +15,8 @@ function App() {
 
      <Navbar />
     <Routes>
-        <Route index element={<Home />} />
-        <Route path="menu" element={<Menu />} />
+        <Route path="/" element={<Home />} />
+        <Route index element={<Menu />} />
         <Route path="add-menu" element={<AddMenuForm />} />
         <Route path="add-menu-item" element={<AddMenuItemForm />} />
       </Routes>
