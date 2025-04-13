@@ -4,10 +4,16 @@ import Menu from '../models/Menu.js';
 // GET all menu items by menuName
 export const getMenuItems = async (req, res) => {
   try {
-    const menuItems = await MenuItem.find({ menuName: req.params.menuName }); // Changed menuId to menuName
-    res.status(200).json({ success: true, data: menuItems });
+    const { menuId } = req.query;
+    
+    if (!menuId) {
+      return res.status(400).json({ success: false, message: "Menu ID is required" });
+    }
+
+    const items = await MenuItem.find({ menu: menuId });
+    res.status(200).json({ success: true, data: items });
   } catch (error) {
-    console.error('Error fetching menu items:', error.message);
+    console.error('Error:', error);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };
@@ -53,17 +59,57 @@ export const createMenuItem = async (req, res) => {
 // DELETE a menu item
 export const deleteMenuItem = async (req, res) => {
   try {
-    const itemId = req.params.id;
+    const { id } = req.params;
 
-    const deletedItem = await MenuItem.findByIdAndDelete(itemId);
-
-    if (!deletedItem) {
-      return res.status(404).json({ message: 'Menu item not found' });
+    // Validate ID format
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Invalid menu item ID format'
+      });
     }
 
-    res.status(200).json({ message: 'Menu item deleted successfully' });
+    // Check if item exists and delete
+    const deletedItem = await MenuItem.findOneAndDelete({ 
+      _id: id,
+      // Optional: Add owner check if items are user-specific
+      // owner: req.user._id 
+    });
+
+    if (!deletedItem) {
+      return res.status(404).json({ 
+        success: false,
+        message: 'Menu item not found or already deleted'
+      });
+    }
+
+    // Log the deletion (optional)
+    console.log(`Deleted menu item: ${deletedItem.name} (ID: ${id})`);
+
+    res.status(200).json({ 
+      success: true,
+      message: 'Menu item deleted successfully',
+      data: {
+        id: deletedItem._id,
+        name: deletedItem.name
+      }
+    });
+
   } catch (error) {
     console.error('Error deleting menu item:', error);
-    res.status(500).json({ message: 'Server error' });
+    
+    // Handle specific errors
+    if (error.name === 'CastError') {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid ID format'
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 };

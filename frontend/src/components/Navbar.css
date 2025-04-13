@@ -1,87 +1,201 @@
 .navbar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    background-color: #16171a;
-    padding: 0.5rem 2rem; /* Reduced top/bottom padding (was 1rem) */
-    /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); */
-    z-index: 1000;
-    height: 92.5px; 
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #16171a;
+  padding: 0.5rem 2rem;
+  z-index: 1000;
+  height: 92.5px;
+}
+
+.navbar-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.logo-title-container {
+  display: flex;
+  align-items: flex-start;
+}
+
+.logo-container {
+  height: 10px;
+  margin-right: 10px;
+}
+
+.logo {
+  height: 100px;
+  width: 140px;
+  max-width: 200px;
+  object-fit: contain;
+  margin-top: 2rem;
+}
+
+.site-title {
+  display: flex;
+  flex-direction: column;
+  margin-top: 2.5rem;
+  margin-left: 0.5rem;
+}
+
+.title-line {
+  font-size: 32px;
+  font-weight: 400;
+  font-family: 'Segoe UI', sans-serif;
+  letter-spacing: -0.5px;
+  line-height: 1;
+}
+
+.blue-text {
+  color: #007bff;
+}
+
+.white-text {
+  color: #fff;
+}
+
+.subtitle {
+  font-size: 32px;
+  font-weight: 400;
+  color: #aaa;
+  font-family: 'Segoe UI', sans-serif;
+  margin-top: -10px;
+  letter-spacing: -0.5px;
+}
+
+.nav-list {
+  list-style-type: none;
+  display: flex;
+  gap: 1rem;
+  letter-spacing: 0.2px;
+  margin: 0;
+  padding: 0;
+  margin-top: 3rem;
+}
+
+.nav-item {
+  margin: 0;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: white;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 0.25rem 0.5rem;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: rgb(32, 70, 166);
+}
+
+.mobile-menu-toggle {
+  display: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: white;
+  margin-top: 2.5rem;
+}
+
+/* Responsive styles */
+@media (max-width: 1024px) {
+  .logo {
+    height: 90px;
+    width: 126px;
+    margin-top: 1.8rem;
+  }
+  
+  .site-title {
+    margin-top: 2.2rem;
+  }
+  
+  .title-line,
+  .subtitle {
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    height: auto;
+    padding: 0.5rem 1.5rem;
   }
   
   .navbar-content {
-    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  
+  .logo-title-container {
+    width: 100%;
     justify-content: space-between;
-    align-items: flex-start; /* Changed from center to flex-start */
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-  
-
-  
-  .nav-list {
-    list-style-type: none;
-    display: flex;
-    gap: 1rem;
-    letter-spacing: 0.2px;
-    margin: 0;
-    padding: 0;
-    margin-top: 3rem; /* Added to pull up the nav items */
-  }
-  
-  .nav-item {
-    margin: 0;
-  }
-  
-  .nav-link {
-    text-decoration: none;
-    color: white;
-    font-weight: 600;
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    padding: 0.25rem 0.5rem;
-    transition: color 0.3s ease;
-  }
-  
-  .nav-link:hover {
-    color: rgb(32, 70, 166);
-  }
-  
-  body {
-    padding-top: 70px;
-  }
-  
-  @media (max-width: 768px) {
-    .navbar-content {
-      flex-direction: column;
-      align-items: center;
-    }
-    .nav-list {
-      margin-top: 1rem;
-    }
-  }
-  
-  .logo-container {
-    height: 10px;
-    margin-right: 10px;
-
+    align-items: center;
   }
   
   .logo {
-    height: 100px;
-    width: 140px;
-    max-width: 200px;
-    object-fit: contain;
-    margin-top: 2rem; /* Adjust as needed */
+    height: 80px;
+    width: 112px;
+    margin-top: 1rem;
   }
-
+  
   .site-title {
-    display: flex;
-    align-items: center;
-    color: white;
-    font-weight: bold;
-    font-size: 20px;
-    
+    margin-top: 1.5rem;
+    margin-left: 0;
   }
+  
+  .title-line,
+  .subtitle {
+    font-size: 24px;
+  }
+  
+  .mobile-menu-toggle {
+    display: block;
+    order: 2;
+  }
+  
+  .nav-list {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    margin-top: 1rem;
+    padding: 1rem 0;
+    background-color: #16171a;
+  }
+  
+  .nav-list.active {
+    display: flex;
+  }
+  
+  .nav-item {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #333;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo {
+    height: 70px;
+    width: 98px;
+  }
+  
+  .title-line,
+  .subtitle {
+    font-size: 20px;
+  }
+  
+  .site-title {
+    margin-top: 1.2rem;
+  }
+  
+  .mobile-menu-toggle {
+    margin-top: 1.5rem;
+  }
+}

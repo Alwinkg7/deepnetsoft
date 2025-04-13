@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import backgroundImage from '../assets/bg1.jpeg'; // Adjust the path as necessary
-import backgroundImage2 from '../assets/bg2.png'; // Adjust the path as necessary
-import backgroundImage3 from '../assets/bg3.png'; // Adjust the path as necessary
+import backgroundImage from '../assets/bg1.jpeg';
+import backgroundImage2 from '../assets/bg2.png';
+import backgroundImage3 from '../assets/bg3.png';
 import turkey from '../assets/turkey.png'; 
 import fish from '../assets/fish.png'; 
 import pizza from '../assets/pizza.png'; 
@@ -17,9 +17,7 @@ import twitter from '../assets/twitter.png';
 import drink from '../assets/drink.png'; 
 import drink2 from '../assets/drink2.png'; 
 import brunch from '../assets/brunch.png'; 
-import menuTitle from '../assets/menu.png'; // Adjust the path as necessary
-import AddMenuForm from './AddMenuForm'; // Adjust the path as necessary
-import AddMenuItemForm from './AddMenuItemForm'; // Adjust the path as necessary
+import menuTitle from '../assets/menu.png';
 import { useParams } from "react-router-dom";
 import axios from 'axios';
 
@@ -34,7 +32,10 @@ const Menu = () => {
     // State for adding menus
     const [showAddInput, setShowAddInput] = useState(false);
     const [newMenuName, setNewMenuName] = useState('');
-    
+    const [itemsLoading, setItemsLoading] = useState(false);
+
+
+    const [selectedMenuName, setSelectedMenuName] = useState(null);
     // State for adding menu items
     const [showAddItemPopup, setShowAddItemPopup] = useState(false);
     const [newItem, setNewItem] = useState({
@@ -57,94 +58,122 @@ const Menu = () => {
     };
 
     const fetchMenuItems = async (menuId) => {
-        try {
-            const res = await axios.get(`http://localhost:5000/api/menu-items/${menuId}`);
-            setMenuItems(res.data.data || []);
-        } catch (err) {
-            console.error("Error fetching menu items:", err);
-            setMenuItems([]);
+      setItemsLoading(true);
+      try {
+        const res = await axios.get(`http://localhost:5000/api/menu-items`, {
+          params: { menuId }
+        });
+        
+        if (res.data.success) {
+          setMenuItems(res.data.data || []);
+        } else {
+          throw new Error(res.data.message || 'Failed to fetch items');
         }
+      } catch (err) {
+        console.error("Error:", err.response?.data || err.message);
+        setMenuItems([]);
+      } finally {
+        setItemsLoading(false);
+      }
     };
 
-    const handleMenuClick = (menuId) => {
-        setSelectedMenuId(menuId);
-        fetchMenuItems(menuId);
+    // Update your menu click handler
+    const handleMenuClick = (menuId, menuName) => {
+      setSelectedMenuId(menuId);
+      setSelectedMenuName(menuName);
+      setMenuItems([]); // Clear previous items
+      fetchMenuItems(menuId);
     };
 
     const handleAddMenu = async () => {
-        // Check if the new menu name is not empty
         if (!newMenuName.trim()) return;
       
         try {
-          // Sending a POST request to the backend to add a new menu
-          const response = await axios.post('http://localhost:5000/api/menus', { Menuname: newMenuName });
-      
-          // If the response is successful, update the menus list
-          if (response.status === 201) {
-            // Assuming the newly created menu is returned in response.data
-            setMenus((prevMenus) => [...prevMenus, response.data]);
-      
-            // Clear the input field and close the input section
+            const response = await axios.post('http://localhost:5000/api/menus', { Menuname: newMenuName });
+        
+            if (response.data && response.data.data) {
+                setMenus(prevMenus => [...prevMenus, response.data.data]);
+            } else {
+                fetchMenus();
+            }
+        
             setNewMenuName('');
             setShowAddInput(false);
-          }
         } catch (error) {
-          console.error("Error adding menu:", error);
-          // You can show an error message to the user if something goes wrong
+            console.error("Error adding menu:", error);
         }
-      };
-      
+    };
 
-      const handleAddMenuItem = async (e) => {
-        e.preventDefault();
-        setItemError('');
-    
-        // Validate selected menu exists
-        if (!selectedMenuId) {
-            setItemError('Please select a menu first');
-            return;
-        }
-    
-        // Field validation
-        if (!newItem.title.trim()) {
-            setItemError('Item name is required');
-            return;
-        }
-        if (!newItem.price || isNaN(newItem.price) || parseFloat(newItem.price) <= 0) {
-            setItemError('Please enter a valid price');
+    const handleDeleteMenu = async (menuId) => {
+        if (!window.confirm("Are you sure you want to delete this menu?")) {
             return;
         }
     
         try {
-            const response = await axios.post("http://localhost:5000/api/menu-items", {
-                name: newItem.title.trim(),       
-                description: newItem.description.trim(),
-                price: parseFloat(newItem.price),
-                menuId: selectedMenuId
-            }, {
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
+            await axios.delete(`http://localhost:5000/api/menus/${menuId}`);
+            
+            setMenus(prevMenus => prevMenus.filter(menu => menu._id !== menuId));
+            
+            if (selectedMenuId === menuId) {
+                setSelectedMenuId(null);
+                setMenuItems([]);
+            }
     
-            // Refresh the items list
-            fetchMenuItems(selectedMenuId);
-            setShowAddItemPopup(false);
-            setNewItem({ title: '', description: '', price: '' });
-    
+            alert("Menu deleted successfully!");
         } catch (error) {
-            console.error("Error details:", {
-                message: error.message,
-                response: error.response?.data,
-                status: error.response?.status
-            });
-    
-            const errorMessage = error.response?.data?.message || 
-                                'Failed to add item. Please try again.';
-            setItemError(errorMessage);
+            console.error("Error deleting menu:", error);
+            alert("Failed to delete menu. Please try again.");
         }
     };
+
+    const handleAddMenuItem = async (e) => {
+      e.preventDefault();
+      setItemError('');
     
+      // Validate all fields
+      const errors = [];
+      if (!selectedMenuName) errors.push('Please select a menu');
+      if (!newItem.title?.trim()) errors.push('Item name is required');
+      if (!newItem.price || isNaN(newItem.price) || parseFloat(newItem.price) <= 0) {
+        errors.push('Please enter a valid price');
+      }
+    
+      if (errors.length > 0) {
+        setItemError(errors.join(', '));
+        return;
+      }
+    
+      try {
+        const payload = {
+          name: newItem.title.trim(),
+          description: newItem.description.trim(),
+          price: parseFloat(newItem.price),
+          menuName: selectedMenuName // Changed from menuname to menuName
+        };
+    
+        console.log("Final payload:", payload); // Verify in browser console
+    
+        const response = await axios.post("http://localhost:5000/api/menu-items", payload, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+    
+        if (response.data.success) {
+          fetchMenuItems(selectedMenuId);
+          setShowAddItemPopup(false);
+          setNewItem({ title: '', description: '', price: '' });
+        } else {
+          setItemError(response.data.message || 'Failed to add item');
+        }
+      } catch (error) {
+        console.error("Full error:", error);
+        const errorMsg = error.response?.data?.message || 
+                       error.message || 
+                       'Failed to add item';
+        setItemError(errorMsg);
+      }
+    };
 
     useEffect(() => {
         fetchMenus();
@@ -153,578 +182,727 @@ const Menu = () => {
         }
     }, [menuId]);
 
-  
-  return (
-    <div
-          style={{
+    return (
+        <div style={{
             backgroundImage: `url(${backgroundImage})`,
             backgroundSize: 'cover',
             backgroundRepeat: 'no-repeat',
-            backgroundPosition: 'center 22.5px', // shifted 80px down
+            backgroundPosition: 'center 22.5px',
             minHeight: '100vh',
-            paddingTop: '60px' // match your navbar height
-          }}
-        >
-                  <div style={{
-            backgroundColor: 'rgba(0, 0, 0, 0.6)', // transparent dark background
-                minHeight: '100vh', marginTop: '-60px'
-          }}>
-
-            <div className="flex flex-col items-center text-center px-4" >
-            <img
-                src={menuTitle}
-                alt="Menu"
-                style={{ width: '180px', height: 'auto', marginTop: '133.2px' }}
-                
-            />
-
-            <p style={{
-                fontSize: '20px',
-                color: '#ddd',
-                maxWidth: '681px',
-                maxHeight: '44px',
-                top: '287px',
-                left: '380px',
-                fontFamily: "Kelly-Slab", 
-                fontStyle: "normal", 
-                fontWeight: 400,
-                letterSpacing: '0.3px',
-                color: "#BBBBBB",
-                marginTop: '20px',
-                lineHeight: '1.1',
-
-            }}>
-                Please take a look at our menu featuring food, drinks, and brunch.If you'd like to<br/> place an order, use the "Order Online" button located below the menu.
-            </p>
-            </div>
-
+            paddingTop: '60px'
+        }}>
             <div style={{
-            backgroundImage: `url(${backgroundImage2})`,
-            marginTop: '70px',
-            height: '80px',
-            
-            backgroundSize: 'contain'
-          }}>
-<div style={{ backgroundColor: 'rgba(0, 0, 0, 0.82)', height: '80px' }}>
-  {loading ? (
-    <p className="text-center">Loading menus...</p>
-  ) : menus.length === 0 ? (
-    <p className="text-center text-red-400">No menus found.</p>
-  ) : (
-    <div className="flex justify-center gap-4 flex-wrap">
-      {menus.map((menu) => (
-        <button
-          key={menu._id}
-          onClick={() => handleMenuClick(menu._id)}
-          className="px-6 py-2 border-2 border-white hover:bg-blue-600 transition-colors"
-          style={{
-            width: '114.25px',
-            height: '49.98px',
-            border: '0.32px solid #0796EF',
-            backgroundColor: selectedMenuId === menu._id ? '#0796EF' : 'black',
-            color: '#fff',
-            borderRadius: '1px',
-            cursor: 'pointer',
-            fontWeight: '500',
-            fontSize: '14px',
-            marginTop: '15px',
-          }}
-        >
-          {menu.Menuname?.toUpperCase() || 'Unnamed'}
-        </button>
-      ))}
-
-      {/* Add Menu Button */}
-      {!showAddInput ? (
-        <button
-          onClick={() => setShowAddInput(true)}
-          style={{
-            width: '70px',
-            height: '40px',
-            backgroundColor: '#0796EF',
-            color: '#fff',
-            fontWeight: 'bold',
-            fontSize: '24px',
-            border: '0.32px solid #0796EF',
-            marginTop: '15px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          ADD
-        </button>
-      ) : (
-        <div className="flex items-center gap-2 mt-3" style={{ marginLeft: '10px' }}>
-          <input
-            type="text"
-            placeholder="Menu name"
-            value={newMenuName}
-            onChange={(e) => setNewMenuName(e.target.value)}
-            style={{
-              padding: '8px 12px',
-              borderRadius: '4px',
-              border: '1px solid #0796EF',
-              background: 'rgba(255, 255, 255, 0.9)',
-              color: '#000',
-            }}
-            autoFocus
-          />
-          <button
-            onClick={handleAddMenu}
-            style={{
-                width: '70px',
-                height: '40px',
-                backgroundColor: '#0796EF',
-                color: '#fff',
-                fontWeight: 'bold',
-                fontSize: '24px',
-                border: '0.32px solid #0796EF',
-                marginTop: '15px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-            }}
-            disabled={!newMenuName.trim()}
-          >
-            Add
-          </button>
-          <button
-            onClick={() => {
-              setShowAddInput(false);
-              setNewMenuName('');
-            }}
-            style={{
-              background: 'transparent',
-              color: '#fff',
-              border: 'none',
-              fontSize: '20px',
-              cursor: 'pointer',
-              padding: '0 8px',
-            }}
-          >
-            ×
-          </button>
-        </div>
-      )}
-    </div>
-  )}
-
-  {/* Display menu items for the selected menu */}
-  {selectedMenuId && menuItems.length > 0 && (
-    <div style={{ marginTop: '20px' }}>
-      <h2 className="text-center text-white">Menu Items</h2>
-      <div className="flex justify-center gap-4 flex-wrap">
-        {menuItems.map((item) => (
-          <div
-            key={item._id}
-            className="bg-white p-4 rounded-md shadow-lg"
-            style={{ width: '200px', textAlign: 'center' }}
-          >
-            <h3 className="text-lg font-bold">{item.name}</h3>
-            <p>{item.description}</p>
-            <p className="font-semibold">Price: ${item.price}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  )}
-</div>
-
-
-            </div>
-
-            <div
-            style={{
-                backgroundImage: `url(${backgroundImage3})`,
-                height: '680px',
-                backgroundSize: 'auto',
-                position: 'relative',
-            }}
-            >
-            <div
-                style={{
-                backgroundColor: 'rgba(0, 0, 0, 0.78)',
-                height: '680px',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '0',
-                overflow: 'hidden', width: '100%'
-
-                }}
-            >
-                {/* Left side - 3 images vertically */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '25px', transform: 'translateX(-25px)' }}>
-                <img src={ turkey } alt="img1" style={{ width: '150px', height: '150px', filter: "brightness(0.2)" }} />
-                <img src={ wine } alt="img2" style={{ width: '150px', height: '150px', filter: "brightness(0.2)" }} />
-                <img src={ pizza } alt="img3" style={{ width: '200px', height: '200px', marginTop: '70px', filter: "brightness(0.2)", marginLeft: '-60px'}} />
-                </div>
-
-                {/* Center box */}
-                <div 
-                style={{
-                    position: 'relative', // Make this container the reference for absolute children
-                    border: '2px solid white',
-                    padding: '30px',
-                    height: '400px',
-                    width: '100%',
-                    maxWidth: '1170px',
+                backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                minHeight: '100vh',
+                marginTop: '-180px'
+            }}>
+                {/* Header Section */}
+                <div className="flex flex-col items-center text-center px-4" style={{
                     display: 'flex',
                     flexDirection: 'column',
-                    justifyContent: 'center',
                     alignItems: 'center',
-                    boxSizing: 'border-box',
-                    margin: '0 auto',
-                }}
-                >
-                {/* Corner Images */}
-                <img 
-                    src= {drink} 
-                    alt="Cocktail Left" 
-                    style={{
-                    position: 'absolute',
-                    top: '-147.5px',
-                    left: '-55px',
-                    height: '281px',
-                    width: '190px',
-                    }}
-                />
-                <img 
-                    src= {drink2} 
-                    alt="Cocktail Right" 
-                    style={{
-                    position: 'absolute',
-                    bottom: '-50px',
-                    right: '-2.5px',
-                    height: '330px',
-                    width: '220px',
-                    }}
-                />
+                    textAlign: 'center',
+                    padding: '0 4%',
+                    marginTop: 'min(133.2px, 15vw)'}}>
+                    <img
+                        src={menuTitle}
+                        alt="Menu"
+                        style={{ width: '180px', height: 'auto', marginTop: '133.2px' }}
+                    />
+                    <p style={{
+                        fontSize: 'min(20px, 3vw)',
+                        maxWidth: 'min(681px, 90vw)',
+                        fontFamily: "Kelly-Slab", 
+                        fontWeight: 400,
+                        letterSpacing: '0.3px',
+                        color: "#BBBBBB",
+                        marginTop: '20px',
+                        lineHeight: '1.1',
+                    }}>
+                        Please take a look at our menu featuring food, drinks, and brunch.If you'd like to<br/> place an order, use the "Order Online" button located below the menu.
+                    </p>
+                </div>
 
-                {/* Heading */}
-                <img src={brunch} alt="Menu" style={{ width: '850px', height: '90px', marginTop: '0px', position: 'absolute', top: '50px' }}/>
-                
-                <div style={{ 
-  maxHeight: '400px',
+                {/* Menu Selection Section */}
+                <div style={{
+                    backgroundImage: `url(${backgroundImage2})`,
+                    marginTop: 'min(70px, 8vw)',
+                    height: '80px',
+                    backgroundSize: 'contain'
+                }}>
+                    <div style={{ backgroundColor: 'rgba(0, 0, 0, 0.82)', height: '80px' }}>
+                        {loading ? (
+                            <p className="text-center">Loading menus...</p>
+                        ) : menus.length === 0 ? (
+                            <p className="text-center text-red-400">No menus found.</p>
+                        ) : (
+                            <div className="flex justify-center flex-wrap" style={{ paddingTop: '15px', gap: 'min(15px, 2vw)', '::-webkit-scrollbar': {
+                                display: 'none'
+                            } }}>
+                                {menus.map((menu) => (
+                                    <div key={menu._id} style={{ display: 'flex', alignItems: 'center', gap: 'min(8px, 1vw)' }}>
+                                        <button
+                                            onClick={() => handleMenuClick(menu._id, menu.Menuname)}
+                                            style={{
+                                                width: 'min(114.25px, 15vw)',
+                                                height: 'min(49.98px, 7vw)',
+                                                border: '0.32px solid #0796EF',
+                                                backgroundColor: selectedMenuId === menu._id ? '#0796EF' : 'black',
+                                                color: '#fff',
+                                                borderRadius: '1px',
+                                                cursor: 'pointer',
+                                                fontWeight: '500',
+                                                fontSize: 'min(14px, 2vw)',
+                                            }}
+                                        >
+                                            {menu.Menuname?.toUpperCase() || 'Unnamed'}
+                                        </button>
+                                        <button
+                                            onClick={() => handleDeleteMenu(menu._id)}
+                                            style={{
+                                                background: 'transparent',
+                                                border: 'none',
+                                                color: 'red',
+                                                cursor: 'pointer',
+                                                fontSize: 'min(16px, 3vw)',
+                                            }}
+                                        >
+                                            🗑️
+                                        </button>
+                                    </div>
+                                ))}
+
+                                {/* Add Menu Button */}
+                                {!showAddInput ? (
+                                    <button
+                                        onClick={() => setShowAddInput(true)}
+                                        style={{
+                                          width: 'min(114.25px, 15vw)',
+                                          height: 'min(49.98px, 7vw)',
+                                          border: '0.32px solid #0796EF',
+                                            color: '#fff',
+                                            borderRadius: '1px',
+                                            cursor: 'pointer',
+                                            fontWeight: '500',
+                                            fontSize: 'min(14px, 2vw)',
+                                            backgroundColor: 'black'
+                                        }}
+                                    >
+                                        ADD
+                                    </button>
+                                ) : (
+                                    <div className="flex items-center gap-2" 
+                                    style={{ display: 'flex', alignItems: 'center', gap: 'min(10px, 1.5vw)', marginLeft: 'min(10px, 1vw)' }}>
+                                        <input
+                                            type="text"
+                                            placeholder="Menu name"
+                                            value={newMenuName}
+                                            onChange={(e) => setNewMenuName(e.target.value)}
+                                            style={{
+                                              padding: 'min(8px, 1vw) min(12px, 1.5vw)',
+                                              borderRadius: '4px',
+                                              border: '1px solid #0796EF',
+                                              background: 'rgba(255, 255, 255, 0.9)',
+                                              color: '#000',
+                                              fontSize: 'min(14px, 2vw)',
+                                              width: 'min(150px, 20vw)'
+                                            }}
+                                            autoFocus
+                                        />
+                                        <button
+                                            onClick={handleAddMenu}
+                                            style={{
+                                              width: 'min(114.25px, 15vw)',
+                                              height: 'min(49.98px, 7vw)',
+                                              border: '0.32px solid #0796EF',
+                                              color: '#fff',
+                                              borderRadius: '1px',
+                                              cursor: 'pointer',
+                                              fontWeight: '500',
+                                              fontSize: 'min(14px, 2vw)',
+                                              backgroundColor: 'black'
+                                            }}
+                                            disabled={!newMenuName.trim()}
+                                        >
+                                            ADD
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                setShowAddInput(false);
+                                                setNewMenuName('');
+                                            }}
+                                            style={{
+                                                background: 'transparent',
+                                                color: '#fff',
+                                                border: 'none',
+                                                fontSize: 'min(20px, 3vw)',
+                                                cursor: 'pointer',
+                                                padding: '0 min(8px, 1vw)',
+                                            }}
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Menu Items Display Section */}
+                <div style={{
+                    backgroundImage: `url(${backgroundImage3})`,
+                    height: 'min(680px, 100vh)',
+                    backgroundSize: 'auto',
+                    position: 'relative',
+                    marginTop: 'min(-5px, 8vw)'
+                }}>
+                    <div style={{
+                        backgroundColor: 'rgba(0, 0, 0, 0.78)',
+                        height: 'min(680px, 100vh)',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '0',
+                        overflow: 'hidden',
+                        width: '100%',
+                        
+                    }}>
+                        {/* Left side images */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 'min(25px, 3vw)', transform: 'translateX(min(-25px, -3vw))',  visibility: window.innerWidth < 1024 ? 'hidden' : 'visible' }}>
+                            <img src={turkey} alt="img1" style={{ width: 'min(150px, 20vw)', height: 'min(150px, 20vw)', filter: "brightness(0.2)" }} />
+                            <img src={wine} alt="img2" style={{ width: 'min(150px, 20vw)', height: 'min(150px, 20vw)', filter: "brightness(0.2)" }} />
+                            <img src={pizza} alt="img3" style={{ width: 'min(200px, 25vw)', height: 'min(200px, 25vw)', marginTop: 'min(70px, 8vw)', filter: "brightness(0.2)", marginLeft: '-min(-60px, -7vw)'}} />
+                        </div>
+
+                        {/* Center box */}
+                        <div style={{
+                            position: 'relative',
+                            border: '2px solid white',
+                            padding: 'min(30px, 3vw)',
+                            height: 'min(400px, 60vh)',
+                            width: 'min(1170px, 90vw)',
+                            maxWidth: '1170px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            boxSizing: 'border-box',
+                            margin: '0 auto',
+                            marginLeft: '40px',
+                            paddingLeft: '10px',
+                        }}>
+                            {/* Corner Images */}
+                            <img 
+                                src={drink} 
+                                alt="Cocktail Left" 
+                                style={{
+                                    position: 'absolute',
+                                    top: 'min(-147.5px, -15vw)',
+                                    left: 'min(-35px, -3.5vw)',
+                                    height: 'min(281px, 30vw)',
+                                    width: 'min(190px, 20vw)',
+                                    marginTop: 'min(80px, 8vw)',
+                                    visibility: window.innerWidth < 1024 ? 'hidden' : 'visible'
+                                }}
+                            />
+                            <img 
+                                src={drink2} 
+                                alt="Cocktail Right" 
+                                style={{
+                                    position: 'absolute',
+                                    bottom: 'min(-40px, -3.5vw)',
+                                    right: 'min(-2.5px, -0.5vw)',
+                                    height: 'min(330px, 35vw)',
+                                    width: 'min(220px, 23vw)',
+                                    visibility: window.innerWidth < 1024 ? 'hidden' : 'visible'
+                                }}
+                            />
+
+                            {/* Heading */}
+                            <img src={brunch} alt="Menu" style={{ width: 'min(850px, 80vw)', height: 'min(90px, 10vw)', position: 'absolute', top: 'min(50px, 6vw)' }}/>
+                            
+                            {/* Menu Items List */}
+                            <div style={{ 
+  maxHeight: 'min(400px, 50vh)',
   overflowY: 'auto', 
   width: '100%', 
-  padding: '20px',
+  padding: 'min(20px, 2vw)',
   color: '#ddd',
   fontFamily: "'Inter', sans-serif",
   backgroundColor: 'transparent',
   borderRadius: '12px',
   boxSizing: 'border-box',
   position: 'relative',
-  marginTop: '60px', // Adjusted to position below the heading
+  marginTop: 'min(70px, 8vw)',
 }}>
-  {/* Menu Items List */}
-  {menuItems.length > 0 ? (
-    <div style={{
-      display: 'grid',
-      gridTemplateColumns: 'repeat(2, 1fr)', // Two columns
-      gap: '16px',
-      paddingBottom: '140px' // Increased bottom padding to give space for the button
-    }}>
-      {menuItems.map(item => (
-        <div key={item._id} style={{ 
-          padding: '16px',
-          borderRadius: '8px',
-          transition: 'all 0.2s ease',
-          ':hover': {
-            backgroundColor: 'rgba(7, 150, 239, 0.1)',
-            transform: 'translateX(2px)'
-          }
-        }}>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '8px',
-            gap: '10px'
-          }}>
-            <div style={{ 
-              display: 'flex',
-              alignItems: 'center',
-              overflow: 'hidden',
-              flex: 1,
-              minWidth: 0
-            }}>
-              <span style={{
-                fontWeight: '700',
-                fontSize: '20px',
-                color: '#fff',
-                textTransform: 'uppercase',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                letterSpacing: '0.5px',
-                display: 'inline-block',
-                flex: 1, // Allow title to take full width
-                whiteSpace: 'normal', // Allow wrapping of long names
-              }}>
-                {item.name}
-              </span>
-              <span style={{
-                color: 'rgba(255,255,255,0.4)',
-                letterSpacing: '4px',
-                margin: '0 8px',
-                flexShrink: 0,
-                fontSize: '12px'
-              }}>
-                •••••••••••••••••••••••
-              </span>
-            </div>
-            <div style={{ 
-              color: '#0796EF', 
-              fontWeight: 'bold', 
-              fontSize: '20px',
-              flexShrink: 0,
-              whiteSpace: 'nowrap'
-            }}>
-              ${item.price}
-            </div>
-          </div>
-
-          <div style={{ 
-            fontSize: '16px',
-            color: 'rgba(221,221,221,0.9)',
-            lineHeight: '1.6',
-            fontStyle: 'italic',
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis'
-          }}>
-            {item.description}
-          </div>
-        </div>
-      ))}
-    </div>
-  ) : (
+  {/* Loading State */}
+  {itemsLoading ? (
     <div style={{
       display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
       justifyContent: 'center',
-      height: '200px',
-      color: 'rgba(221,221,221,0.7)',
-      gap: '16px'
+      alignItems: 'center',
+      height: '200px'
     }}>
       <div style={{
-        fontSize: '18px',
-        fontStyle: 'italic'
-      }}>
-        No items available for this category.
-      </div>
+        width: '40px',
+        height: '40px',
+        border: '4px solid rgba(7, 150, 239, 0.3)',
+        borderTop: '4px solid #0796EF',
+        borderRadius: '50%',
+        animation: 'spin 1s linear infinite'
+      }} />
+    </div>
+  ) : (
+    <div style={{ position: 'relative', minHeight: '100%', backgroundColor: 'transparent' }}>
+      {/* Menu Items List */}
+      {selectedMenuId ? (
+        menuItems.length > 0 ? (
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: '20px',
+            paddingBottom: '100px' // Extra padding for the sticky button
+          }}>
+            {menuItems.filter(item => item.menu === selectedMenuId).map(item => (
+              <div key={item._id} style={{ 
+                padding: '20px',
+                borderRadius: '8px',
+                backgroundColor: 'transparent',
+                
+                transition: 'all 0.3s ease',
+                ':hover': {
+                  backgroundColor: 'rgba(7, 150, 239, 0.1)',
+                  transform: 'translateY(-3px)',
+                  boxShadow: '0 4px 12px transparent'
+                }
+              }}>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: '12px'
+                }}>
+                  <div style={{ 
+                    display: 'flex',
+                    alignItems: 'center',
+                    overflow: 'hidden',
+                    flex: 1,
+                    minWidth: 0
+                  }}>
+                    <span style={{
+                      fontWeight: '700',
+                      fontSize: '20px',
+                      color: '#fff',
+                      textTransform: 'uppercase',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap'
+                    }}>
+                      {item.name}
+                    </span>
+                    <span style={{
+                      color: 'white',
+                      letterSpacing: '4px',
+                      margin: '0 8px',
+                      flexShrink: 0,
+                      fontSize: '12px'
+                    }}>
+                      •••
+                    </span>
+                  </div>
+                  <div style={{ 
+                    color: 'white', 
+                    fontWeight: 'bold', 
+                    fontSize: '20px',
+                    flexShrink: 0
+                  }}>
+                    ${item.price.toFixed(2)}
+                  </div>
+                </div>
+
+                <div style={{ 
+                  fontSize: '16px',
+                  color: 'rgba(221,221,221,0.9)',
+                  lineHeight: '1.6',
+                  fontStyle: 'italic',
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis'
+                }}>
+                  {item.description}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '200px',
+            color: 'rgba(221,221,221,0.7)',
+            gap: '16px',
+            paddingBottom: '100px' // Match padding with items list
+          }}>
+            <div style={{
+              fontSize: '18px',
+              fontStyle: 'italic'
+            }}>
+              No items available for this menu.
+            </div>
+          </div>
+        )
+      ) : (
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '200px',
+          color: 'rgba(221,221,221,0.7)',
+          fontSize: '18px',
+          paddingBottom: '20px'
+        }}>
+          Please select a menu to view items
+        </div>
+      )}
+
+      {/* Sticky Add Item Button */}
+      {selectedMenuId && (
+        <div style={{
+          position: 'sticky',
+          bottom: '0',
+          left: '0',
+          right: '0',
+          padding: '20px 0',
+          display: 'flex',
+          justifyContent: 'center',
+          background: 'linear-gradient(to top, transparent 0%, transparent 100%)',
+          zIndex: 100,
+          marginTop: '-60px' // Pulls up to overlap with content
+        }}>
+          <button
+            onClick={() => setShowAddItemPopup(true)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              padding: '12px 24px',
+              backgroundColor: '#0796EF',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '50px',
+              cursor: 'pointer',
+              fontWeight: '600',
+              fontSize: '16px',
+              boxShadow: '0 4px 12px rgba(7, 150, 239, 0.25)',
+              transition: 'all 0.3s ease',
+              ':hover': {
+                backgroundColor: '#0680D0',
+                transform: 'translateY(-2px)',
+                boxShadow: '0 6px 16px rgba(7, 150, 239, 0.35)'
+              }
+            }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+            {menuItems.length === 0 ? 'Add First Item' : 'Add Item'}
+          </button>
+        </div>
+      )}
     </div>
   )}
-
-  {/* Persistent Add Item Button */}
-  <div style={{
-    position: 'absolute',
-    bottom: '20px',
-    left: '50%',
-    transform: 'translateX(-50%)',
-    width: 'calc(100% - 40px)',  // Full width minus padding
-    padding: '0 20px',  // Add padding to left and right
-    display: 'flex',
-    justifyContent: 'center',
-    zIndex: 100
-  }}>
-  <button
-  onClick={() => {
-    console.log("Add Item button clicked!"); // This will help debug if the click is being registered
-    setShowAddItemPopup(true); // This should trigger the popup
-  }}
-  style={{
-    padding: '8px 16px',  // Reduced padding
-    backgroundColor: '#0796EF',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    fontWeight: 'bold',
-    fontSize: '14px', // Smaller font size
-    boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
-  }}
->
-  + Add Item
-</button>
-
-  </div>
 </div>
+                        </div>
 
-
-
-
-
-
-                {/* Content goes here */}
+                        {/* Right side images */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 'min(40px, 4vw)', transform: 'translateX(min(70px, 7vw))', visibility: window.innerWidth < 1024 ? 'hidden' : 'visible' }}>
+                            <img src={fish} alt="img4" style={{ width: 'min(200px, 25vw)', height: 'min(150px, 18vw)', filter: "brightness(0.2)" }} />
+                            <img src={glasses} alt="img5" style={{ width: 'min(150px, 18vw)', height: 'min(150px, 18vw)', filter: "brightness(0.2)" }} />
+                            <img src={grill} alt="img6" style={{ width: 'min(150px, 18vw)', height: 'min(150px, 18vw)', filter: "brightness(0.2)" }} />
+                        </div>
+                    </div>
                 </div>
 
+                {/* Contact Section */}
+                <div style={{
+                    backgroundColor: 'rgba(0, 0, 0, 0.78)',
+                    height: 'min(280px, 35vw)',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: 'min(15px, 2vw)',
+                    flexWrap: 'wrap',
+                    padding: 'min(20px, 2vw) 0'
+                }}>
+                    {/* First Column */}
+                    <div style={{
+                        width: 'min(375px, 40vw)',
+                        height: 'min(135px, 18vw)',
+                        border: '1px solid white',
+                        borderRadius: '14px',
+                        color: '#b7aaa1',
+                        padding: 'min(16px, 2vw)',
+                        fontSize: 'min(14px, 1.8vw)',
+                        marginTop: 'min(35px, 4vw)',
+                        textAlign: 'center'
+                    }}>
+                        <h3 style={{
+                            color: '#0796EF',
+                            fontSize: '16px',
+                            marginBottom: '12px',
+                            fontWeight: 'bold',
+                            letterSpacing: '-0.5px',
+                        }}>
+                            CONNECT WITH US
+                        </h3>
+                        <p style={{ alignItems: 'center', marginBottom: '8px' }} >
+                            <i className="fas fa-phone" style={{ color: '#d6b854', marginRight: '10px' }}></i>
+                            <span>+91 9567843340</span>
+                        </p>
+                        <p style={{ alignItems: 'center', textAlign: 'center' }}>
+                            <i className="fas fa-envelope" style={{ color: '#d6b854', marginRight: '10px' }}></i>
+                            <span>info@deepnetsoft.com</span>
+                        </p>
+                    </div>
 
-                {/* Right side - 3 images vertically */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '40px', transform: 'translateX(70px)' }}>
-                <img src={ fish } alt="img4" style={{ width: '200px', height: '150px', filter: "brightness(0.2)" }} />
-                <img src={ glasses } alt="img5" style={{ width: '150px', height: '150px', filter: "brightness(0.2)" }} />
-                <img src={ grill } alt="img6" style={{ width: '150px', height: '150px', filter: "brightness(0.2)" }} />
+                    {/* Center Column with Logo */}
+                    <div style={{
+                        width: 'min(400px, 45vw)',
+                        height: 'min(135px, 18vw)',
+                        border: '1px solid white',
+                        borderRadius: '14px',
+                        color: '#b7aaa1',
+                        paddingTop: 'min(38px, 5vw)',
+                        textAlign: 'center',
+                        position: 'relative',
+                        fontSize: 'min(14px, 1.8vw)',
+                        marginTop: 'min(35px, 4vw)',
+                    }}>
+                        <img 
+                            src={logo}
+                            alt="Logo"
+                            style={{
+                                position: 'absolute',
+                                top: 'min(-52.5px, -6vw)',
+                                left: '50%',
+                                right: '50%',
+                                transform: 'translateX(-50%)',
+                                height: 'min(100px, 12vw)',
+                                backgroundColor: '#000',
+                                padding: '-1px',
+                                borderRadius: '50%'
+                            }}
+                        />
+                        <h3 style={{ fontSize: '28px', fontWeight: 'normal', marginBottom: '6px', letterSpacing: '0.5px', marginTop: '20px' }}>
+                            <span style={{ color: '#0796EF', fontWeight: 'bold' }}>DEEP</span>{' '}
+                            <span style={{ color: '#ffffff' }}>NET</span>{' '}
+                            <span style={{ color: '#b7aaa1', opacity: 0.6 }}>SOFT</span>
+                        </h3>
+                        <div style={{ display: 'flex', justifyContent: 'center', gap: '8px' }}>
+                            <img src={facebook} alt="Facebook" style={{ width: '16px', filter: "invert(1) brightness(0.6)" }} />
+                            <img src={twitter} alt="twitter" style={{ width: '16px', filter: "invert(1) brightness(0.6)" }} />
+                            <img src={instagram} alt="Instagram" style={{ width: '16px', filter: "invert(1) brightness(0.6)" }} />
+                            <img src={twitter} alt="Twitter" style={{ width: '16px', filter: "invert(1) brightness(0.6)" }} />
+                        </div>
+                    </div>
+
+                    {/* Last Column */}
+                    <div style={{
+                        width: 'min(400px, 45vw)',
+                        height: 'min(135px, 18vw)',
+                        border: '1px solid white',
+                        borderRadius: '14px',
+                        color: '#b7aaa1',
+                        padding: 'min(16px, 2vw)',
+                        fontSize: 'min(14px, 1.8vw)',
+                        marginTop: 'min(35px, 4vw)',
+                        textAlign: 'center'
+                    }}>
+                        <h3 style={{
+                            color: '#0796EF',
+                            fontSize: '16px',
+                            marginBottom: '10px',
+                            fontWeight: 'bold',
+                            letterSpacing: '-0.5px'
+                        }}>
+                            FIND US
+                        </h3>
+                        <p style={{ marginBottom: '6px' }}>
+                            <i className="fas fa-map-marker-alt" style={{ color: '#d6b854', marginRight: '10px' }}></i>
+                            <span style={{ marginLeft: '20px' }}>First floor, Geo Infopark,</span>
+                        </p>
+                        <p style={{ marginLeft: '45px' }}>Infopark EXPY, Kakkanad</p>
+                    </div>
                 </div>
 
+                {/* Footer Section */}
+                <div style={{
+                    backgroundColor: '#16171a',
+                    height: 'min(45px, 6vw)',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '0 min(120px, 10vw)',
+                    color: '#a99c96',
+                    fontSize: 'min(14px, 1.8vw)',
+                    fontFamily: 'sans-serif',
+                    flexWrap: 'wrap'
+                }}>
+                    <div>© 2024 Deepnetsoft Solutions. All rights reserved.</div>
+                    <div style={{ display: 'flex', gap: '20px', cursor: 'pointer' }}>
+                        <span>Terms & Conditions</span>
+                        <span>Privacy Policy</span>
+                    </div>
+                </div>
+            </div>
+
+            {/* Add Item Popup */}
+            {showAddItemPopup && (
+            <div style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(0,0,0,0.7)',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              zIndex: 1000
+            }}>
+              <div style={{
+                backgroundColor: '#222',
+                padding: '20px',
+                borderRadius: '8px',
+                width: '400px',
+                maxWidth: '90%'
+              }}>
+                <h3 style={{ color: '#0796EF', marginBottom: '20px' }}>Add New Menu Item</h3>
+                
+                {itemError && (
+                  <p style={{ color: 'red', marginBottom: '15px' }}>{itemError}</p>
+                )}
+                
+                <form onSubmit={handleAddMenuItem}>
+                  {/* Add Menu Selection Dropdown */}
+                  <div style={{ marginBottom: '15px' }}>
+                    <label style={{ display: 'block', marginBottom: '5px', color: '#ddd' }}>Select Menu</label>
+                    <select
+                      value={selectedMenuId || ''}
+                      onChange={(e) => setSelectedMenuId(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '8px',
+                        borderRadius: '4px',
+                        border: '1px solid #444',
+                        backgroundColor: '#333',
+                        color: '#fff'
+                      }}
+                      required
+                    >
+                      <option value="">-- Select a Menu --</option>
+                      {menus.map(menu => (
+                        <option key={menu._id} value={menu._id}>
+                          {menu.Menuname}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div style={{ marginBottom: '15px' }}>
+                    <label style={{ display: 'block', marginBottom: '5px', color: '#ddd' }}>Item Name</label>
+                    <input
+                      type="text"
+                      value={newItem.title}
+                      onChange={(e) => setNewItem({...newItem, title: e.target.value})}
+                      style={{
+                        width: '100%',
+                        padding: '8px',
+                        borderRadius: '4px',
+                        border: '1px solid #444',
+                        backgroundColor: '#333',
+                        color: '#fff'
+                      }}
+                      required
+                    />
+                  </div>
+                                      
+                                      <div style={{ marginBottom: '15px' }}>
+                                          <label style={{ display: 'block', marginBottom: '5px', color: '#ddd' }}>Description</label>
+                                          <textarea
+                                              value={newItem.description}
+                                              onChange={(e) => setNewItem({...newItem, description: e.target.value})}
+                                              style={{
+                                                  width: '100%',
+                                                  padding: '8px',
+                                                  borderRadius: '4px',
+                                                  border: '1px solid #444',
+                                                  backgroundColor: '#333',
+                                                  color: '#fff',
+                                                  minHeight: '80px'
+                                              }}
+                                          />
+                                      </div>
+                                      
+                                      <div style={{ marginBottom: '20px' }}>
+                                          <label style={{ display: 'block', marginBottom: '5px', color: '#ddd' }}>Price</label>
+                                          <input
+                                              type="number"
+                                              value={newItem.price}
+                                              onChange={(e) => setNewItem({...newItem, price: e.target.value})}
+                                              style={{
+                                                  width: '100%',
+                                                  padding: '8px',
+                                                  borderRadius: '4px',
+                                                  border: '1px solid #444',
+                                                  backgroundColor: '#333',
+                                                  color: '#fff'
+                                              }}
+                                              step="0.01"
+                                          />
+                                      </div>
+                                      
+                                      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                                          <button
+                                              type="button"
+                                              onClick={() => setShowAddItemPopup(false)}
+                                              style={{
+                                                  padding: '8px 16px',
+                                                  backgroundColor: '#444',
+                                                  color: '#fff',
+                                                  border: 'none',
+                                                  borderRadius: '4px',
+                                                  cursor: 'pointer'
+                                              }}
+                                          >
+                                              Cancel
+                                          </button>
+                                          <button
+                                              type="submit"
+                                              style={{
+                                                  padding: '8px 16px',
+                                                  backgroundColor: '#0796EF',
+                                                  color: '#fff',
+                                                  border: 'none',
+                                                  borderRadius: '4px',
+                                                  cursor: 'pointer'
+                                              }}
+                                          >
+                                              Add Item
+                                          </button>
+                                      </div>
+                                  </form>
+                              </div>
+                          </div>
+            )}
         </div>
-    </div>
-
-    </div>
-    <div style={{
-        backgroundColor: 'rgba(0, 0, 0, 0.78)',
-        height: '280px', // reduced height
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: '15px',
-        }}>
-        {/* First Column */}
-        <div style={{
-        width: '375px',
-        height: '135px',
-        border: '1px solid white',
-        borderRadius: '14px',
-        color: '#b7aaa1',
-        padding: '16px',
-        fontSize: '14px',
-        marginTop: '35px',
-        textAlign: 'center'
-        }}>
-        <h3 style={{
-            color: '#0796EF',
-            fontSize: '16px',
-            marginBottom: '12px',
-            fontWeight: 'bold',
-            letterSpacing: '-0.5px',
-            
-        }}>
-            CONNECT WITH US
-        </h3>
-
-        <p style={{  alignItems: 'center', marginBottom: '8px' }} >
-            <i className="fas fa-phone" style={{ color: '#d6b854', marginRight: '10px' }}></i>
-            <span>+91 9567843340</span>
-        </p>
-
-        <p style={{ alignItems: 'center', textAlign: 'center' }}>
-            <i className="fas fa-envelope" style={{ color: '#d6b854', marginRight: '10px' }}></i>
-            <span>info@deepnetsoft.com</span>
-        </p>
-        </div>
-
-
-
-  {/* Center Column with Logo */}
-  <div style={{
-    width: '400px',
-    height: '135px',
-    border: '1px solid white',
-    borderRadius: '14px',
-    color: '#b7aaa1',
-    paddingTop: '38px',
-    textAlign: 'center',
-    position: 'relative',
-    fontSize: '14px',
-    marginTop: '35px', // added marginTop for spacing
-
-  }}>
-    <img 
-      src={logo}
-      alt="Logo"
-      style={{
-        position: 'absolute',
-        top: '-52.5px',
-        left: '50%',
-        right: '50%',
-        transform: 'translateX(-50%)',
-        height: '100px',
-        backgroundColor: '#000',
-        padding: '-1px',
-        borderRadius: '50%'
-      }}
-    />
-    <h3 style={{ fontSize: '28px', fontWeight: 'normal', marginBottom: '6px', letterSpacing: '0.5px', marginTop: '20px' }}>
-    <span style={{ color: '#0796EF', fontWeight: 'bold' }}>DEEP</span>{' '}
-    <span style={{ color: '#ffffff' }}>NET</span>{' '}
-    <span style={{ color: '#b7aaa1', opacity: 0.6 }}>SOFT</span>
-    </h3>
-
-    <div style={{ display: 'flex', justifyContent: 'center', gap: '8px' }}>
-      <img src={facebook} alt="Facebook" style={{ width: '16px', filter: "invert(1) brightness(0.6)" }} />
-      <img src={twitter} alt="twitter" style={{ width: '16px', filter: "invert(1) brightness(0.6)" }} />
-      <img src={instagram} alt="Instagram" style={{ width: '16px', filter: "invert(1) brightness(0.6)" }} />
-      <img src={twitter} alt="Twitter" style={{ width: '16px', filter: "invert(1) brightness(0.6)" }} />
-    </div>
-  </div>
-
-  {/* Last Column */}
-  <div style={{
-  width: '400px',
-  height: '135px',
-  border: '1px solid white',
-  borderRadius: '14px',
-  color: '#b7aaa1',
-  padding: '16px',
-  fontSize: '14px',
-  marginTop: '35px',
-  textAlign: 'center'
-}}>
-  <h3 style={{
-    color: '#0796EF',
-    fontSize: '16px',
-    marginBottom: '10px',
-    fontWeight: 'bold',
-    letterSpacing: '-0.5px'
-  }}>
-    FIND US
-  </h3>
-
-  <p style={{ marginBottom: '6px' }}>
-    <i class="fas fa-map-marker-alt" style={{ color: '#d6b854', marginRight: '10px' }}></i>
-    <span style={{ marginLeft: '20px' }}>First floor, Geo Infopark,</span>
-  </p>
-
-  <p style={{ marginLeft: '45px' }}>Infopark EXPY, Kakkanad</p>
-</div>
-
-
-
-</div>
-
-
-
-    {/* Footer Section */}
-
-    <div style={{
-        backgroundColor: '#16171a',
-        height: '45px',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: '0 120px',
-        color: '#a99c96', // updated text color
-        fontSize: '14px',
-        fontFamily: 'sans-serif'
-        }}>
-        <div>© 2024 Deepnetsoft Solutions. All rights reserved.</div>
-        <div style={{ display: 'flex', gap: '20px', cursor: 'pointer' }}>
-            <span>Terms & Conditions</span>
-            <span>Privacy Policy</span>
-        </div>
-        </div>
-
-
-
-    </div>
-    
-  );
+    );
 };
 
 export default Menu;

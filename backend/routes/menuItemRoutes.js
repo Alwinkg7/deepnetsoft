@@ -4,7 +4,7 @@ import { getMenuItems, createMenuItem, deleteMenuItem } from '../controllers/men
 const router = express.Router();
 
 router.post('/', createMenuItem); // Create a menu item
-router.get('/:menuId', getMenuItems); // Get all items for a specific menu
+router.get('/', getMenuItems); // Uses query parameters
 router.delete('/:id', deleteMenuItem);
 
 export default router;

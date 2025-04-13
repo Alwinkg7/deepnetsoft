@@ -4,8 +4,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import Menu from './pages/Menu';
 import Navbar from './components/Navbar';
-import AddMenuForm from './pages/AddMenuForm';
-import AddMenuItemForm from './pages/AddMenuItemForm';
+import MakeReservation from './pages/MakeReservation';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -15,10 +14,9 @@ function App() {
 
      <Navbar />
     <Routes>
-        <Route path="/" element={<Home />} />
-        <Route index element={<Menu />} />
-        <Route path="add-menu" element={<AddMenuForm />} />
-        <Route path="add-menu-item" element={<AddMenuItemForm />} />
+        <Route path='/' element={<Menu />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/reservation" element={<MakeReservation />} />
       </Routes>
     </BrowserRouter>
 
