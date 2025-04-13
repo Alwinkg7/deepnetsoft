@@ -1,0 +1,11 @@
+{
+    "name": "deepnetsoft",
+    "scripts": {
+      "build": "cd frontend && npm install && npm run build",
+      "start": "cd backend && npm start",
+      "dev": "concurrently \"cd backend && npm run dev\" \"cd frontend && npm run dev\""
+    },
+    "devDependencies": {
+      "concurrently": "^8.2.2"
+    }
+  }
