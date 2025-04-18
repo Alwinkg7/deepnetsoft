@@ -1,0 +1,88 @@
+.contact-page {
+    background-color: #000;
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end; /* Aligns content to bottom */
+    padding: 2rem;
+    position: relative;
+  }
+  
+  .contact-content {
+    max-width: 600px;
+    margin: 0 auto;
+    width: 100%;
+    padding-bottom: 5rem; /* Adds space at bottom */
+  }
+  
+  .contact-content h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .contact-content p {
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+    opacity: 0.8;
+  }
+  
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .form-group input,
+  .form-group textarea {
+    width: 100%;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    font-size: 1rem;
+    border-radius: 4px;
+  }
+  
+  .form-group input::placeholder,
+  .form-group textarea::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+  }
+  
+  .form-group textarea {
+    min-height: 150px;
+    resize: vertical;
+  }
+  
+  .submit-btn {
+    background: #fff;
+    color: #000;
+    border: none;
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+  }
+  
+  .submit-btn:hover {
+    background: #ddd;
+  }
+  
+  .submit-btn:disabled {
+    background: #666;
+    cursor: not-allowed;
+  }
+  
+  .success-message {
+    color: #4CAF50;
+    padding: 1rem;
+    background: rgba(76, 175, 80, 0.1);
+    border-radius: 4px;
+  }
+  
+  .error-message {
+    color: #f44336;
+    margin-top: 1rem;
+  }

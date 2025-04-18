@@ -194,33 +194,39 @@ const Menu = () => {
             <div style={{
                 backgroundColor: 'rgba(0, 0, 0, 0.6)',
                 minHeight: '100vh',
-                marginTop: '-180px'
+                marginTop: '-280px',
             }}>
-                {/* Header Section */}
-                <div className="flex flex-col items-center text-center px-4" style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    textAlign: 'center',
+                <div
+                  className="flex flex-col items-center text-center px-4"
+                  style={{
                     padding: '0 4%',
-                    marginTop: 'min(133.2px, 15vw)'}}>
-                    <img
-                        src={menuTitle}
-                        alt="Menu"
-                        style={{ width: '180px', height: 'auto', marginTop: '133.2px' }}
-                    />
-                    <p style={{
-                        fontSize: 'min(20px, 3vw)',
-                        maxWidth: 'min(681px, 90vw)',
-                        fontFamily: "Kelly-Slab", 
-                        fontWeight: 400,
-                        letterSpacing: '0.3px',
-                        color: "#BBBBBB",
-                        marginTop: '20px',
-                        lineHeight: '1.1',
-                    }}>
-                        Please take a look at our menu featuring food, drinks, and brunch.If you'd like to<br/> place an order, use the "Order Online" button located below the menu.
-                    </p>
+                    marginTop: '300px', // Ensures it's well below the fixed navbar
+                  }}
+                >
+                  <img
+                    src={menuTitle}
+                    alt="Menu"
+                    style={{
+                      width: '180px',
+                      height: 'auto',
+                      marginTop: '150px',
+                    }}
+                  />
+                  <p
+                    style={{
+                      fontSize: 'min(20px, 3vw)',
+                      maxWidth: 'min(681px, 90vw)',
+                      fontFamily: 'Kelly-Slab',
+                      fontWeight: 400,
+                      letterSpacing: '0.3px',
+                      color: '#BBBBBB',
+                      marginTop: '20px',
+                      lineHeight: '1.1',
+                    }}
+                  >
+                    Please take a look at our menu featuring food, drinks, and brunch. If you'd like to
+                    <br /> place an order, use the "Order Online" button located below the menu.
+                  </p>
                 </div>
 
                 {/* Menu Selection Section */}
@@ -424,200 +430,200 @@ const Menu = () => {
                             
                             {/* Menu Items List */}
                             <div style={{ 
-  maxHeight: 'min(400px, 50vh)',
-  overflowY: 'auto', 
-  width: '100%', 
-  padding: 'min(20px, 2vw)',
-  color: '#ddd',
-  fontFamily: "'Inter', sans-serif",
-  backgroundColor: 'transparent',
-  borderRadius: '12px',
-  boxSizing: 'border-box',
-  position: 'relative',
-  marginTop: 'min(70px, 8vw)',
-}}>
-  {/* Loading State */}
-  {itemsLoading ? (
-    <div style={{
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      height: '200px'
-    }}>
-      <div style={{
-        width: '40px',
-        height: '40px',
-        border: '4px solid rgba(7, 150, 239, 0.3)',
-        borderTop: '4px solid #0796EF',
-        borderRadius: '50%',
-        animation: 'spin 1s linear infinite'
-      }} />
-    </div>
-  ) : (
-    <div style={{ position: 'relative', minHeight: '100%', backgroundColor: 'transparent' }}>
-      {/* Menu Items List */}
-      {selectedMenuId ? (
-        menuItems.length > 0 ? (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-            gap: '20px',
-            paddingBottom: '100px' // Extra padding for the sticky button
-          }}>
-            {menuItems.filter(item => item.menu === selectedMenuId).map(item => (
-              <div key={item._id} style={{ 
-                padding: '20px',
-                borderRadius: '8px',
-                backgroundColor: 'transparent',
-                
-                transition: 'all 0.3s ease',
-                ':hover': {
-                  backgroundColor: 'rgba(7, 150, 239, 0.1)',
-                  transform: 'translateY(-3px)',
-                  boxShadow: '0 4px 12px transparent'
-                }
-              }}>
-                <div style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  marginBottom: '12px'
-                }}>
-                  <div style={{ 
-                    display: 'flex',
-                    alignItems: 'center',
-                    overflow: 'hidden',
-                    flex: 1,
-                    minWidth: 0
-                  }}>
-                    <span style={{
-                      fontWeight: '700',
-                      fontSize: '20px',
-                      color: '#fff',
-                      textTransform: 'uppercase',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap'
-                    }}>
-                      {item.name}
-                    </span>
-                    <span style={{
-                      color: 'white',
-                      letterSpacing: '4px',
-                      margin: '0 8px',
-                      flexShrink: 0,
-                      fontSize: '12px'
-                    }}>
-                      •••
-                    </span>
-                  </div>
-                  <div style={{ 
-                    color: 'white', 
-                    fontWeight: 'bold', 
-                    fontSize: '20px',
-                    flexShrink: 0
-                  }}>
-                    ${item.price.toFixed(2)}
-                  </div>
-                </div>
+                              maxHeight: 'min(400px, 50vh)',
+                              overflowY: 'auto', 
+                              width: '100%', 
+                              padding: 'min(20px, 2vw)',
+                              color: '#ddd',
+                              fontFamily: "'Inter', sans-serif",
+                              backgroundColor: 'transparent',
+                              borderRadius: '12px',
+                              boxSizing: 'border-box',
+                              position: 'relative',
+                              marginTop: 'min(70px, 8vw)',
+                            }}>
+                              {/* Loading State */}
+                              {itemsLoading ? (
+                                <div style={{
+                                  display: 'flex',
+                                  justifyContent: 'center',
+                                  alignItems: 'center',
+                                  height: '200px'
+                                }}>
+                                  <div style={{
+                                    width: '40px',
+                                    height: '40px',
+                                    border: '4px solid rgba(7, 150, 239, 0.3)',
+                                    borderTop: '4px solid #0796EF',
+                                    borderRadius: '50%',
+                                    animation: 'spin 1s linear infinite'
+                                  }} />
+                                </div>
+                              ) : (
+                                <div style={{ position: 'relative', minHeight: '100%', backgroundColor: 'transparent' }}>
+                                  {/* Menu Items List */}
+                                  {selectedMenuId ? (
+                                    menuItems.length > 0 ? (
+                                      <div style={{
+                                        display: 'grid',
+                                        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                                        gap: '20px',
+                                        paddingBottom: '100px' // Extra padding for the sticky button
+                                      }}>
+                                      {menuItems.filter(item => item.menu === selectedMenuId).map(item => (
+                                        <div key={item._id} style={{ 
+                                          padding: '20px',
+                                          borderRadius: '8px',
+                                          backgroundColor: 'transparent',
+                                          
+                                          transition: 'all 0.3s ease',
+                                          ':hover': {
+                                            backgroundColor: 'rgba(7, 150, 239, 0.1)',
+                                            transform: 'translateY(-3px)',
+                                            boxShadow: '0 4px 12px transparent'
+                                          }
+                                        }}>
+                                          <div style={{
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                            marginBottom: '12px'
+                                          }}>
+                                            <div style={{ 
+                                              display: 'flex',
+                                              alignItems: 'center',
+                                              overflow: 'hidden',
+                                              flex: 1,
+                                              minWidth: 0
+                                            }}>
+                                              <span style={{
+                                                fontWeight: '700',
+                                                fontSize: '20px',
+                                                color: '#fff',
+                                                textTransform: 'uppercase',
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                                whiteSpace: 'nowrap'
+                                              }}>
+                                                {item.name}
+                                              </span>
+                                              <span style={{
+                                                color: 'white',
+                                                letterSpacing: '4px',
+                                                margin: '0 8px',
+                                                flexShrink: 0,
+                                                fontSize: '12px'
+                                              }}>
+                                                •••
+                                              </span>
+                                            </div>
+                                            <div style={{ 
+                                              color: 'white', 
+                                              fontWeight: 'bold', 
+                                              fontSize: '20px',
+                                              flexShrink: 0
+                                            }}>
+                                              ${item.price.toFixed(2)}
+                                            </div>
+                                          </div>
 
-                <div style={{ 
-                  fontSize: '16px',
-                  color: 'rgba(221,221,221,0.9)',
-                  lineHeight: '1.6',
-                  fontStyle: 'italic',
-                  display: '-webkit-box',
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: 'vertical',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis'
-                }}>
-                  {item.description}
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: '200px',
-            color: 'rgba(221,221,221,0.7)',
-            gap: '16px',
-            paddingBottom: '100px' // Match padding with items list
-          }}>
-            <div style={{
-              fontSize: '18px',
-              fontStyle: 'italic'
-            }}>
-              No items available for this menu.
-            </div>
-          </div>
-        )
-      ) : (
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '200px',
-          color: 'rgba(221,221,221,0.7)',
-          fontSize: '18px',
-          paddingBottom: '20px'
-        }}>
-          Please select a menu to view items
-        </div>
-      )}
+                                          <div style={{ 
+                                            fontSize: '16px',
+                                            color: 'rgba(221,221,221,0.9)',
+                                            lineHeight: '1.6',
+                                            fontStyle: 'italic',
+                                            display: '-webkit-box',
+                                            WebkitLineClamp: 2,
+                                            WebkitBoxOrient: 'vertical',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis'
+                                          }}>
+                                            {item.description}
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  ) : (
+                                    <div style={{
+                                      display: 'flex',
+                                      flexDirection: 'column',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      height: '200px',
+                                      color: 'rgba(221,221,221,0.7)',
+                                      gap: '16px',
+                                      paddingBottom: '100px' // Match padding with items list
+                                    }}>
+                                      <div style={{
+                                        fontSize: '18px',
+                                        fontStyle: 'italic'
+                                      }}>
+                                        No items available for this menu.
+                                      </div>
+                                    </div>
+                                  )
+                                ) : (
+                                  <div style={{
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    height: '200px',
+                                    color: 'rgba(221,221,221,0.7)',
+                                    fontSize: '18px',
+                                    paddingBottom: '20px'
+                                  }}>
+                                    Please select a menu to view items
+                                  </div>
+                                )}
 
-      {/* Sticky Add Item Button */}
-      {selectedMenuId && (
-        <div style={{
-          position: 'sticky',
-          bottom: '0',
-          left: '0',
-          right: '0',
-          padding: '20px 0',
-          display: 'flex',
-          justifyContent: 'center',
-          background: 'linear-gradient(to top, transparent 0%, transparent 100%)',
-          zIndex: 100,
-          marginTop: '-60px' // Pulls up to overlap with content
-        }}>
-          <button
-            onClick={() => setShowAddItemPopup(true)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
-              padding: '12px 24px',
-              backgroundColor: '#0796EF',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '50px',
-              cursor: 'pointer',
-              fontWeight: '600',
-              fontSize: '16px',
-              boxShadow: '0 4px 12px rgba(7, 150, 239, 0.25)',
-              transition: 'all 0.3s ease',
-              ':hover': {
-                backgroundColor: '#0680D0',
-                transform: 'translateY(-2px)',
-                boxShadow: '0 6px 16px rgba(7, 150, 239, 0.35)'
-              }
-            }}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M12 5v14M5 12h14" />
-            </svg>
-            {menuItems.length === 0 ? 'Add First Item' : 'Add Item'}
-          </button>
-        </div>
-      )}
-    </div>
-  )}
-</div>
+                                {/* Sticky Add Item Button */}
+                                {selectedMenuId && (
+                                  <div style={{
+                                    position: 'sticky',
+                                    bottom: '0',
+                                    left: '0',
+                                    right: '0',
+                                    padding: '20px 0',
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    background: 'linear-gradient(to top, transparent 0%, transparent 100%)',
+                                    zIndex: 100,
+                                    marginTop: '-60px' // Pulls up to overlap with content
+                                  }}>
+                                    <button
+                                      onClick={() => setShowAddItemPopup(true)}
+                                      style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        gap: '8px',
+                                        padding: '12px 24px',
+                                        backgroundColor: '#0796EF',
+                                        color: '#fff',
+                                        border: 'none',
+                                        borderRadius: '50px',
+                                        cursor: 'pointer',
+                                        fontWeight: '600',
+                                        fontSize: '16px',
+                                        boxShadow: '0 4px 12px rgba(7, 150, 239, 0.25)',
+                                        transition: 'all 0.3s ease',
+                                        ':hover': {
+                                          backgroundColor: '#0680D0',
+                                          transform: 'translateY(-2px)',
+                                          boxShadow: '0 6px 16px rgba(7, 150, 239, 0.35)'
+                                        }
+                                      }}
+                                    >
+                                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <path d="M12 5v14M5 12h14" />
+                                      </svg>
+                                      {menuItems.length === 0 ? 'Add First Item' : 'Add Item'}
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
                         </div>
 
                         {/* Right side images */}
@@ -629,137 +635,174 @@ const Menu = () => {
                     </div>
                 </div>
 
-                {/* Contact Section */}
-                <div style={{
-                    backgroundColor: 'rgba(0, 0, 0, 0.78)',
-                    height: 'min(280px, 35vw)',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    gap: 'min(15px, 2vw)',
-                    flexWrap: 'wrap',
-                    padding: 'min(20px, 2vw) 0'
-                }}>
-                    {/* First Column */}
-                    <div style={{
-                        width: 'min(375px, 40vw)',
-                        height: 'min(135px, 18vw)',
-                        border: '1px solid white',
-                        borderRadius: '14px',
-                        color: '#b7aaa1',
-                        padding: 'min(16px, 2vw)',
-                        fontSize: 'min(14px, 1.8vw)',
-                        marginTop: 'min(35px, 4vw)',
-                        textAlign: 'center'
-                    }}>
-                        <h3 style={{
-                            color: '#0796EF',
-                            fontSize: '16px',
-                            marginBottom: '12px',
-                            fontWeight: 'bold',
-                            letterSpacing: '-0.5px',
-                        }}>
-                            CONNECT WITH US
-                        </h3>
-                        <p style={{ alignItems: 'center', marginBottom: '8px' }} >
-                            <i className="fas fa-phone" style={{ color: '#d6b854', marginRight: '10px' }}></i>
-                            <span>+91 9567843340</span>
-                        </p>
-                        <p style={{ alignItems: 'center', textAlign: 'center' }}>
-                            <i className="fas fa-envelope" style={{ color: '#d6b854', marginRight: '10px' }}></i>
-                            <span>info@deepnetsoft.com</span>
-                        </p>
-                    </div>
+              {/* Contact Section */}
+              <div style={{
+                  backgroundColor: 'rgba(0, 0, 0, 0.78)',
+                  minHeight: '280px',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  gap: 'clamp(10px, 3vw, 15px)',
+                  flexWrap: 'wrap',
+                  padding: 'clamp(20px, 5vw, 40px)',
+                  boxSizing: 'border-box'
+              }}>
+                  {/* First Column - Contact Info */}
+                  <div style={{
+                      width: 'clamp(300px, 80vw, 375px)',
+                      minHeight: '135px',
+                      border: '1px solid white',
+                      borderRadius: '14px',
+                      color: '#b7aaa1',
+                      padding: 'clamp(12px, 3vw, 16px)',
+                      fontSize: 'clamp(12px, 3vw, 14px)',
+                      marginTop: 'clamp(20px, 5vw, 35px)',
+                      textAlign: 'center',
+                      boxSizing: 'border-box'
+                  }}>
+                      <h3 style={{
+                          color: '#0796EF',
+                          fontSize: 'clamp(14px, 4vw, 16px)',
+                          marginBottom: 'clamp(8px, 2vw, 12px)',
+                          fontWeight: 'bold',
+                          letterSpacing: '-0.5px',
+                      }}>
+                          CONNECT WITH US
+                      </h3>
+                      <p style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '8px' }} >
+                          <i className="fas fa-phone" style={{ color: '#d6b854', marginRight: '10px' }}></i>
+                          <span>+91 9567843340</span>
+                      </p>
+                      <p style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                          <i className="fas fa-envelope" style={{ color: '#d6b854', marginRight: '10px' }}></i>
+                          <span>info@deepnetsoft.com</span>
+                      </p>
+                  </div>
 
-                    {/* Center Column with Logo */}
-                    <div style={{
-                        width: 'min(400px, 45vw)',
-                        height: 'min(135px, 18vw)',
-                        border: '1px solid white',
-                        borderRadius: '14px',
-                        color: '#b7aaa1',
-                        paddingTop: 'min(38px, 5vw)',
-                        textAlign: 'center',
-                        position: 'relative',
-                        fontSize: 'min(14px, 1.8vw)',
-                        marginTop: 'min(35px, 4vw)',
-                    }}>
-                        <img 
-                            src={logo}
-                            alt="Logo"
-                            style={{
-                                position: 'absolute',
-                                top: 'min(-52.5px, -6vw)',
-                                left: '50%',
-                                right: '50%',
-                                transform: 'translateX(-50%)',
-                                height: 'min(100px, 12vw)',
-                                backgroundColor: '#000',
-                                padding: '-1px',
-                                borderRadius: '50%'
-                            }}
-                        />
-                        <h3 style={{ fontSize: '28px', fontWeight: 'normal', marginBottom: '6px', letterSpacing: '0.5px', marginTop: '20px' }}>
-                            <span style={{ color: '#0796EF', fontWeight: 'bold' }}>DEEP</span>{' '}
-                            <span style={{ color: '#ffffff' }}>NET</span>{' '}
-                            <span style={{ color: '#b7aaa1', opacity: 0.6 }}>SOFT</span>
-                        </h3>
-                        <div style={{ display: 'flex', justifyContent: 'center', gap: '8px' }}>
-                            <img src={facebook} alt="Facebook" style={{ width: '16px', filter: "invert(1) brightness(0.6)" }} />
-                            <img src={twitter} alt="twitter" style={{ width: '16px', filter: "invert(1) brightness(0.6)" }} />
-                            <img src={instagram} alt="Instagram" style={{ width: '16px', filter: "invert(1) brightness(0.6)" }} />
-                            <img src={twitter} alt="Twitter" style={{ width: '16px', filter: "invert(1) brightness(0.6)" }} />
-                        </div>
-                    </div>
+                  {/* Center Column with Logo */}
+                  <div style={{
+                      width: 'clamp(300px, 80vw, 400px)',
+                      minHeight: '135px',
+                      border: '1px solid white',
+                      borderRadius: '14px',
+                      color: '#b7aaa1',
+                      padding: 'clamp(30px, 8vw, 38px) clamp(12px, 3vw, 16px) 0',
+                      textAlign: 'center',
+                      position: 'relative',
+                      fontSize: 'clamp(12px, 3vw, 14px)',
+                      marginTop: 'clamp(20px, 5vw, 35px)',
+                      boxSizing: 'border-box'
+                  }}>
+                      <img 
+                          src={logo}
+                          alt="Logo"
+                          style={{
+                              position: 'absolute',
+                              top: 'clamp(-40px, -8vw, -52.5px)',
+                              left: '50%',
+                              transform: 'translateX(-50%)',
+                              height: 'clamp(80px, 15vw, 100px)',
+                              backgroundColor: '#000',
+                              padding: '2px',
+                              borderRadius: '50%',
+                              border: '1px solid white'
+                          }}
+                      />
+                      <h3 style={{ 
+                          fontSize: 'clamp(20px, 6vw, 28px)', 
+                          fontWeight: 'normal', 
+                          marginBottom: 'clamp(4px, 1.5vw, 6px)', 
+                          letterSpacing: '0.5px', 
+                          marginTop: 'clamp(10px, 3vw, 20px)' 
+                      }}>
+                          <span style={{ color: '#0796EF', fontWeight: 'bold' }}>DEEP</span>{' '}
+                          <span style={{ color: '#ffffff' }}>NET</span>{' '}
+                          <span style={{ color: '#b7aaa1', opacity: 0.6 }}>SOFT</span>
+                      </h3>
+                      <div style={{ 
+                          display: 'flex', 
+                          justifyContent: 'center', 
+                          gap: 'clamp(6px, 1.5vw, 8px)',
+                          marginTop: 'clamp(8px, 2vw, 12px)'
+                      }}>
+                          <img src={facebook} alt="Facebook" style={{ width: 'clamp(14px, 4vw, 16px)', filter: "invert(1) brightness(0.6)" }} />
+                          <img src={twitter} alt="Twitter" style={{ width: 'clamp(14px, 4vw, 16px)', filter: "invert(1) brightness(0.6)" }} />
+                          <img src={instagram} alt="Instagram" style={{ width: 'clamp(14px, 4vw, 16px)', filter: "invert(1) brightness(0.6)" }} />
+                      </div>
+                  </div>
 
-                    {/* Last Column */}
-                    <div style={{
-                        width: 'min(400px, 45vw)',
-                        height: 'min(135px, 18vw)',
-                        border: '1px solid white',
-                        borderRadius: '14px',
-                        color: '#b7aaa1',
-                        padding: 'min(16px, 2vw)',
-                        fontSize: 'min(14px, 1.8vw)',
-                        marginTop: 'min(35px, 4vw)',
-                        textAlign: 'center'
-                    }}>
-                        <h3 style={{
-                            color: '#0796EF',
-                            fontSize: '16px',
-                            marginBottom: '10px',
-                            fontWeight: 'bold',
-                            letterSpacing: '-0.5px'
-                        }}>
-                            FIND US
-                        </h3>
-                        <p style={{ marginBottom: '6px' }}>
-                            <i className="fas fa-map-marker-alt" style={{ color: '#d6b854', marginRight: '10px' }}></i>
-                            <span style={{ marginLeft: '20px' }}>First floor, Geo Infopark,</span>
-                        </p>
-                        <p style={{ marginLeft: '45px' }}>Infopark EXPY, Kakkanad</p>
-                    </div>
-                </div>
+                  {/* Last Column - Address */}
+                  <div style={{
+                      width: 'clamp(300px, 80vw, 400px)',
+                      minHeight: '135px',
+                      border: '1px solid white',
+                      borderRadius: '14px',
+                      color: '#b7aaa1',
+                      padding: 'clamp(12px, 3vw, 16px)',
+                      fontSize: 'clamp(12px, 3vw, 14px)',
+                      marginTop: 'clamp(20px, 5vw, 35px)',
+                      textAlign: 'center',
+                      boxSizing: 'border-box'
+                  }}>
+                      <h3 style={{
+                          color: '#0796EF',
+                          fontSize: 'clamp(14px, 4vw, 16px)',
+                          marginBottom: 'clamp(8px, 2vw, 10px)',
+                          fontWeight: 'bold',
+                          letterSpacing: '-0.5px'
+                      }}>
+                          FIND US
+                      </h3>
+                      <div style={{ textAlign: 'left', paddingLeft: 'clamp(20px, 5vw, 30px)' }}>
+                          <p style={{ 
+                              marginBottom: '6px',
+                              display: 'flex',
+                              alignItems: 'center'
+                          }}>
+                              <i className="fas fa-map-marker-alt" style={{ 
+                                  color: '#d6b854', 
+                                  marginRight: 'clamp(8px, 2vw, 10px)',
+                                  minWidth: '16px'
+                              }}></i>
+                              <span>First floor, Geo Infopark,</span>
+                          </p>
+                          <p style={{ 
+                              marginLeft: 'clamp(24px, 6vw, 30px)',
+                              wordBreak: 'break-word'
+                          }}>
+                              Infopark EXPY, Kakkanad
+                          </p>
+                      </div>
+                  </div>
+              </div>
 
-                {/* Footer Section */}
-                <div style={{
-                    backgroundColor: '#16171a',
-                    height: 'min(45px, 6vw)',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '0 min(120px, 10vw)',
-                    color: '#a99c96',
-                    fontSize: 'min(14px, 1.8vw)',
-                    fontFamily: 'sans-serif',
-                    flexWrap: 'wrap'
-                }}>
-                    <div>© 2024 Deepnetsoft Solutions. All rights reserved.</div>
-                    <div style={{ display: 'flex', gap: '20px', cursor: 'pointer' }}>
-                        <span>Terms & Conditions</span>
-                        <span>Privacy Policy</span>
-                    </div>
-                </div>
+              {/* Footer Section */}
+              <div style={{
+                  backgroundColor: '#16171a',
+                  minHeight: '45px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: 'clamp(10px, 3vw, 15px) clamp(20px, 5vw, 120px)',
+                  color: '#a99c96',
+                  fontSize: 'clamp(10px, 3vw, 14px)',
+                  fontFamily: 'sans-serif',
+                  flexWrap: 'wrap',
+                  gap: 'clamp(10px, 3vw, 20px)',
+                  textAlign: 'center'
+              }}>
+                  <div>© 2024 Deepnetsoft Solutions. All rights reserved.</div>
+                  <div style={{ 
+                      display: 'flex', 
+                      gap: 'clamp(10px, 3vw, 20px)', 
+                      cursor: 'pointer',
+                      flexWrap: 'wrap',
+                      justifyContent: 'center'
+                  }}>
+                      <span>Terms & Conditions</span>
+                      <span>Privacy Policy</span>
+                  </div>
+              </div>
             </div>
 
             {/* Add Item Popup */}

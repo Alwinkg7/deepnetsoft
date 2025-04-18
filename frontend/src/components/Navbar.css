@@ -24,14 +24,12 @@
 }
 
 .logo-container {
-  height: 10px;
   margin-right: 10px;
 }
 
 .logo {
   height: 100px;
   width: 140px;
-  max-width: 200px;
   object-fit: contain;
   margin-top: 2rem;
 }
@@ -64,7 +62,7 @@
   font-weight: 400;
   color: #aaa;
   font-family: 'Segoe UI', sans-serif;
-  margin-top: -10px;
+  margin-top: -8px;
   letter-spacing: -0.5px;
 }
 
@@ -72,10 +70,9 @@
   list-style-type: none;
   display: flex;
   gap: 1rem;
-  letter-spacing: 0.2px;
-  margin: 0;
-  padding: 0;
   margin-top: 3rem;
+  margin-bottom: 0;
+  padding: 0;
 }
 
 .nav-item {
@@ -105,18 +102,19 @@
   margin-top: 2.5rem;
 }
 
-/* Responsive styles */
+/* ---------- Responsive Styles ---------- */
+
 @media (max-width: 1024px) {
   .logo {
     height: 90px;
     width: 126px;
     margin-top: 1.8rem;
   }
-  
+
   .site-title {
     margin-top: 2.2rem;
   }
-  
+
   .title-line,
   .subtitle {
     font-size: 28px;
@@ -128,39 +126,40 @@
     height: auto;
     padding: 0.5rem 1.5rem;
   }
-  
+
   .navbar-content {
     flex-wrap: wrap;
     align-items: center;
   }
-  
+
   .logo-title-container {
     width: 100%;
     justify-content: space-between;
     align-items: center;
   }
-  
+
   .logo {
     height: 80px;
     width: 112px;
     margin-top: 1rem;
   }
-  
+
   .site-title {
     margin-top: 1.5rem;
     margin-left: 0;
   }
-  
+
   .title-line,
   .subtitle {
     font-size: 24px;
   }
-  
+
   .mobile-menu-toggle {
     display: block;
     order: 2;
+    margin-top: 1.8rem;
   }
-  
+
   .nav-list {
     display: none;
     flex-direction: column;
@@ -169,11 +168,11 @@
     padding: 1rem 0;
     background-color: #16171a;
   }
-  
+
   .nav-list.active {
     display: flex;
   }
-  
+
   .nav-item {
     padding: 0.5rem 0;
     border-bottom: 1px solid #333;
@@ -185,16 +184,16 @@
     height: 70px;
     width: 98px;
   }
-  
+
+  .site-title {
+    margin-top: 1.2rem;
+  }
+
   .title-line,
   .subtitle {
     font-size: 20px;
   }
-  
-  .site-title {
-    margin-top: 1.2rem;
-  }
-  
+
   .mobile-menu-toggle {
     margin-top: 1.5rem;
   }
